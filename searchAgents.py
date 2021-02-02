@@ -376,11 +376,12 @@ class CornersProblem(search.SearchProblem):
         dx, dy = Actions.directionToVector(action)
         nextx, nexty = int(x + dx), int(y + dy)
         "*** YOUR CODE HERE ***"
-        if (x, y) in self.corners:
-            state[1][(x, y)] = True
-            
-        # you will need to replace the None part of the following tuple.
+
         copy = state[1].copy()
+        if (nextx, nexty) in self.corners:
+            copy[(nextx, nexty)] = True
+
+        # you will need to replace the None part of the following tuple.
         return ((nextx, nexty), copy)
 
     def getCostOfActionSequence(self, actions):
