@@ -308,6 +308,10 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.dictionary = {}
+        for corner in self.corners:
+            self.dictionary[corner] = False
+        print('init')
 
     def getStartState(self):
         """
@@ -315,14 +319,20 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        return (self.startingPosition, [False, False, False, False])
+        print('getStartsState')
+
+        return (self.startingPosition, self.dictionary)
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        return not (False in state[1])
+        print('in isGoalState : ')
+        print(state[1])
+        print('isGoalState finish')
+        return not (False in state[1].values())
+
 
     def expand(self, state):
         """
@@ -334,6 +344,7 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that child
         """
+        print('expand operating')
 
         children = []
         for action in self.getActions(state):
@@ -343,6 +354,10 @@ class CornersProblem(search.SearchProblem):
             nextState = self.getNextState(state, action)
             actionCost = self.getActionCost(state, action, nextState)
             children.append((nextState, action, actionCost))
+            '''print(action)
+            print(nextState)
+            print(actionCost)'''
+        print(children)
 
 
         self._expanded += 1 # DO NOT CHANGE
@@ -351,6 +366,8 @@ class CornersProblem(search.SearchProblem):
     def getActions(self, state):
         possible_directions = [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]
         valid_actions_from_state = []
+        print('getActions operating')
+        print(state[0])
         for action in possible_directions:
             x, y = state[0]
             dx, dy = Actions.directionToVector(action)
@@ -372,10 +389,10 @@ class CornersProblem(search.SearchProblem):
         nextx, nexty = int(x + dx), int(y + dy)
         "*** YOUR CODE HERE ***"
         if (nextx, nexty) in self.corners:
-            state[1] = True
+            self.dictionary[(nextx, nexty)] = True
         # you will need to replace the None part of the following tuple.
-        copy = state[1].copy()
-        return ((nextx, nexty), copy)
+        copy = self.dictionary.copy()
+        return ((nextx, nexty), self.dictionary)
 
     def getCostOfActionSequence(self, actions):
         """
