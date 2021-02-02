@@ -311,7 +311,6 @@ class CornersProblem(search.SearchProblem):
         self.dictionary = {}
         for corner in self.corners:
             self.dictionary[corner] = False
-        print('init')
 
     def getStartState(self):
         """
@@ -319,7 +318,6 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        print('getStartsState')
 
         return (self.startingPosition, self.dictionary)
 
@@ -328,9 +326,7 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        print('in isGoalState : ')
-        print(state[1])
-        print('isGoalState finish')
+
         return not (False in state[1].values())
 
 
@@ -344,7 +340,6 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that child
         """
-        print('expand operating')
 
         children = []
         for action in self.getActions(state):
@@ -354,11 +349,6 @@ class CornersProblem(search.SearchProblem):
             nextState = self.getNextState(state, action)
             actionCost = self.getActionCost(state, action, nextState)
             children.append((nextState, action, actionCost))
-            '''print(action)
-            print(nextState)
-            print(actionCost)'''
-        print(children)
-
 
         self._expanded += 1 # DO NOT CHANGE
         return children
@@ -366,8 +356,6 @@ class CornersProblem(search.SearchProblem):
     def getActions(self, state):
         possible_directions = [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]
         valid_actions_from_state = []
-        print('getActions operating')
-        print(state[0])
         for action in possible_directions:
             x, y = state[0]
             dx, dy = Actions.directionToVector(action)
@@ -388,11 +376,12 @@ class CornersProblem(search.SearchProblem):
         dx, dy = Actions.directionToVector(action)
         nextx, nexty = int(x + dx), int(y + dy)
         "*** YOUR CODE HERE ***"
-        if (nextx, nexty) in self.corners:
-            self.dictionary[(nextx, nexty)] = True
+        if (x, y) in self.corners:
+            state[1][(x, y)] = True
+            
         # you will need to replace the None part of the following tuple.
-        copy = self.dictionary.copy()
-        return ((nextx, nexty), self.dictionary)
+        copy = state[1].copy()
+        return ((nextx, nexty), copy)
 
     def getCostOfActionSequence(self, actions):
         """
