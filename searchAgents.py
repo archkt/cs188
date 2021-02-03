@@ -397,6 +397,15 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+def manhattanDist(a, b):
+    """
+    Input: tuple, tuple
+    return Integer
+    """
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+def euclideanDist(a, b):
+    return (abs(a[0]- b[0]) ** 2 + abs(a[1] - b[1]) ** 2) ** 1/2
 
 def cornersHeuristic(state, problem):
     """
@@ -416,7 +425,15 @@ def cornersHeuristic(state, problem):
 
     "*** YOUR CODE HERE ***"
 
-    return sum(i == False for i in state[1].values())
+    #Manhattan distance
+    temp = []
+    for i in state[1]:
+        if state[1][i] == False:
+            temp.append(i)
+    if len(temp) != 0:
+        return max([manhattanDist(state[0], i) for i in temp])
+    else:
+        return 0
 
     #return 0 # Default to trivial solution
 
@@ -533,8 +550,14 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    foodList = foodGrid.asList()
+
+    if len(foodList) != 0:
+        return max([manhattanDist(position, i) for i in foodList])
+    else:
+        return 0
+
+    #return closestFood
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
