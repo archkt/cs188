@@ -404,9 +404,6 @@ def manhattanDist(a, b):
     """
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
-def euclideanDist(a, b):
-    return (abs(a[0]- b[0]) ** 2 + abs(a[1] - b[1]) ** 2) ** 1/2
-
 def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -552,10 +549,11 @@ def foodHeuristic(state, problem):
     position, foodGrid = state
     foodList = foodGrid.asList()
 
-    if len(foodList) != 0:
-        return max([manhattanDist(position, i) for i in foodList])
-    else:
+    if len(foodList) == 0:
         return 0
+    else:
+        return max([manhattanDist(position, i) for i in foodList] +
+               [mazeDistance(position, i, problem.startingGameState) for i in foodList])
 
     #return closestFood
 
