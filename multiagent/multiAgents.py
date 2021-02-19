@@ -127,25 +127,25 @@ class MinimaxAgent(MultiAgentSearchAgent):
     from operator import itemgetter
 
     def minimax(self, gameState, agentNum, depth):
-        if depth == self.depth | gameState.isWin() | gameState.isLose():
+        if depth == self.depth or gameState.isWin() or gameState.isLose():
             return self.evaluationFunction(gameState)
 
-
         if agentNum == 0:
-            max_value = float('-inf')
+            max_value = -1e9
             for action in gameState.getLegalActions(0):
                 max_value = max(self.minimax(gameState.getNextState(agentNum, action), agentNum + 1, depth), max_value)
 
             return max_value
 
         else:
-            min_value = float('inf')
             if agentNum == gameState.getNumAgents() - 1:
+                min_value = 1e9
                 for action in gameState.getLegalActions(agentNum):
                     min_value = min(self.minimax(gameState.getNextState(agentNum, action), 0, depth + 1), min_value)
 
                 return min_value
             else:
+                min_value = 1e9
                 for action in gameState.getLegalActions(agentNum):
                     min_value = min(self.minimax(gameState.getNextState(agentNum, action), agentNum + 1, depth), min_value)
 
@@ -179,8 +179,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         evaluations = [(action, self.minimax(gameState.getNextState(0, action), agentNum=1, depth=0))
                        for action in gameState.getLegalActions(0)]
-        evaluations.sort(key=lambda x: x[1])
-        return evaluations[0][0]
+        sorted_eval = sorted(evaluations, key=lambda x: x[1], reverse=True)
+
+        return sorted_eval[0][0]
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
