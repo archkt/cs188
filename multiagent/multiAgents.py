@@ -255,24 +255,28 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             return self.evaluationFunction(gameState)
 
         if agentNum == 0:
-            for action in gameState.getLegalActions(0):
-                max_value = max(self.expectimax(gameState.getNextState(agentNum, action), agentNum + 1, depth))
-
+            max_value = max([self.expectimax(gameState.getNextState(agentNum, action), agentNum + 1, depth)
+                             for action in gameState.getLegalActions(0)])
+            #print('max_value: ', max_value)
             return max_value
 
         else:
-            counter = 1
+            counter = 0
+            expect_value = 0
+
             if agentNum == gameState.getNumAgents() - 1:
                 for action in gameState.getLegalActions(agentNum):
-                    expect_value = sum(self.expectimax(gameState.getNextState(agentNum, action), 0, depth + 1), 0) / counter
+                    expect_value += self.expectimax(gameState.getNextState(agentNum, action), 0, depth + 1)
                     counter += 1
+                #print('expect_value: ', expect_value, ' counter: ', counter)
+                return expect_value / counter
 
-                return expect_value
             else:
                 for action in gameState.getLegalActions(agentNum):
-                    expect_value = sum(self.expectimax(gameState.getNextState(agentNum, action), agentNum + 1, depth), 0) / counter
-
-                return expect_value
+                    expect_value += self.expectimax(gameState.getNextState(agentNum, action), agentNum + 1, depth)
+                    counter += 1
+                #print('expect_value: ', expect_value, ' counter: ', counter)
+                return expect_value / counter
 
     def getAction(self, gameState):
         """
@@ -284,6 +288,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         evaluations = [(action, self.expectimax(gameState.getNextState(0, action), agentNum=1, depth=0))
                       for action in gameState.getLegalActions(0)]
+        #print(evaluations)
         sorted_eval = sorted(evaluations, key=lambda x: x[1], reverse=True)
 
         return sorted_eval[0][0]
