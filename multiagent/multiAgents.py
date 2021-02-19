@@ -124,33 +124,32 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
     """
+    from operator import itemgetter
 
     def minimax(self, gameState, agentNum, depth):
         if depth == self.depth | gameState.isWin() | gameState.isLose():
             return self.evaluationFunction(gameState)
 
-        eval = {}
 
         if agentNum == 0:
             max_value = float('-inf')
             for action in gameState.getLegalActions(0):
-                eval[action] = self.minimax(gameState.getNextState(agentNum, action), agentNum + 1, depth)
-            print('pac\'s turn: ', eval)
-            return max(eval, key=lambda x: x[1])
+                max_value = max(self.minimax(gameState.getNextState(agentNum, action), agentNum + 1, depth), max_value)
+
+            return max_value
 
         else:
             min_value = float('inf')
             if agentNum == gameState.getNumAgents() - 1:
                 for action in gameState.getLegalActions(agentNum):
-                    eval[action] = self.minimax(gameState.getNextState(agentNum, action), 0, depth + 1)
-                print('ghost turn ', agentNum, eval)
-                return min(eval, key=lambda x: x[1])
+                    min_value = min(self.minimax(gameState.getNextState(agentNum, action), 0, depth + 1), min_value)
+
+                return min_value
             else:
                 for action in gameState.getLegalActions(agentNum):
-                    eval[action] = self.minimax(gameState.getNextState(agentNum, action), agentNum + 1, depth)
-                print('ghost turn ', agentNum, eval)
-                return min(eval, key=lambda x: x[1])
+                    min_value = min(self.minimax(gameState.getNextState(agentNum, action), agentNum + 1, depth), min_value)
 
+                return min_value
 
 
     def getAction(self, gameState):
@@ -178,7 +177,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        return self.minimax(gameState, agentNum=0, depth=0)[0]
+        evaluations = [(action, self.minimax(gameState.getNextState(0, action), agentNum=1, depth=0))
+                       for action in gameState.getLegalActions(0)]
+        evaluations.sort(key=lambda x: x[1])
+        return evaluations[0][0]
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
