@@ -188,12 +188,62 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     Your minimax agent with alpha-beta pruning (question 3)
     """
 
+    def minimax_ab(self, gameState, agentNum, depth, a, b):
+        if depth == self.depth or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+
+        if agentNum == 0:
+            max_value = -1e9
+            for action in gameState.getLegalActions(0):
+                max_value = max(self.minimax_ab(gameState.getNextState(agentNum, action), agentNum + 1, depth, a, b), max_value)
+                if max_value > b:
+                    return max_value
+                a = max(a, max_value)
+
+            return max_value
+
+        else:
+            if agentNum == gameState.getNumAgents() - 1:
+                min_value = 1e9
+                for action in gameState.getLegalActions(agentNum):
+                    min_value = min(self.minimax_ab(gameState.getNextState(agentNum, action), 0, depth + 1, a, b), min_value)
+                    if min_value < a:
+                        return min_value
+                    b = min(b, min_value)
+                return min_value
+            else:
+                min_value = 1e9
+                for action in gameState.getLegalActions(agentNum):
+                    min_value = min(self.minimax_ab(gameState.getNextState(agentNum, action), agentNum + 1, depth, a, b), min_value)
+                    if min_value < a:
+                        return min_value
+                    b = min(b, min_value)
+
+                return min_value
+
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        a = -1e9
+        b = 1e9
+        max_value = -1e9
+
+        evaluations = []
+        for action in gameState.getLegalActions(0):
+            max_value = max(self.minimax_ab(gameState.getNextState(0, action), 1, 0, a, b),
+                            max_value)
+            if max_value > b:
+                return max_value
+            a = max(a, max_value)
+            evaluations.append((action, max_value))
+
+        sorted_eval = sorted(evaluations, key=lambda x: x[1], reverse=True)
+
+        return sorted_eval[0][0]
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
