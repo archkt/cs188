@@ -88,7 +88,13 @@ def sentence1():
     (not A) or (not B) or C
     """
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+    a = Expr('A')
+    b = Expr('B')
+    c = Expr('C')
+    first = a | b
+    second = ~a % (~b | c)
+    third = disjoin(~a, ~b, c)
+    return conjoin(first, second, third)
     "*** END YOUR CODE HERE ***"
 
 
@@ -101,7 +107,16 @@ def sentence2():
     (not D) implies C
     """
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+    a = Expr('A')
+    b = Expr('B')
+    c = Expr('C')
+    d = Expr('D')
+    first = c % (b | d)
+    second = a >> (~b & ~d)
+    third = ~(b & ~c) >> a
+    fourth = ~d >> c
+
+    return conjoin(first, second, third, fourth)
     "*** END YOUR CODE HERE ***"
 
 
@@ -118,7 +133,17 @@ def sentence3():
     The Wumpus is born at time 0.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+    PropSymbolExpr('PacmanAlive', 1)
+    PropSymbolExpr('PacmanAlive', 0)
+    PropSymbolExpr('PacmanBorn', 0)
+    PropSymbolExpr('PacmanKilled', 0)
+
+    first = PropSymbolExpr('PacmanAlive', 1) % ((PropSymbolExpr('PacmanAlive', 0) & ~PropSymbolExpr('PacmanKilled', 0)) |
+                                                (~PropSymbolExpr('PacmanAlive', 0) & PropSymbolExpr('PacmanBorn', 0)))
+    second = ~(PropSymbolExpr('PacmanAlive', 0) & PropSymbolExpr('PacmanBorn', 0))
+    third = PropSymbolExpr('PacmanBorn', 0)
+
+    return conjoin(first, second, third)
     "*** END YOUR CODE HERE ***"
 
 
@@ -143,7 +168,8 @@ def findModel(sentence):
     model if one exists. Otherwise, returns False.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+    cnf = to_cnf(sentence)
+    return pycoSAT(cnf)
     "*** END YOUR CODE HERE ***"
 
 
@@ -167,7 +193,7 @@ def atLeastOne(literals):
     True
     """
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+
     "*** END YOUR CODE HERE ***"
 
 
