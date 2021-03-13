@@ -193,7 +193,7 @@ def atLeastOne(literals):
     True
     """
     "*** BEGIN YOUR CODE HERE ***"
-
+    return disjoin(literals)
     "*** END YOUR CODE HERE ***"
 
 
@@ -204,7 +204,10 @@ def atMostOne(literals):
     the expressions in the list is true.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+
+    combinations = itertools.combinations(literals, 2)
+    combinations_negation = [disjoin(~i[0], ~i[1]) for i in combinations]
+    return conjoin(combinations_negation)
     "*** END YOUR CODE HERE ***"
 
 
@@ -215,7 +218,7 @@ def exactlyOne(literals):
     the expressions in the list is true.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+    return conjoin(atLeastOne(literals), atMostOne(literals))
     "*** END YOUR CODE HERE ***"
 
 
