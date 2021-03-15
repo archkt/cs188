@@ -383,7 +383,7 @@ def check_location_satisfiability(x1_y1, x0_y0, action0, action1, problem):
 
     model1 = findModel(conjoin(KB) & ~PropSymbolExpr(pacman_str, x1, y1, 1))
     model2 = findModel(conjoin(KB) & PropSymbolExpr(pacman_str, x1, y1, 1))
-    
+
     return model1, model2
     "*** END YOUR CODE HERE ***"
 
@@ -408,7 +408,22 @@ def positionLogicPlan(problem):
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+    KB.append(PropSymbolExpr(pacman_str, x0, y0, 0))
+    for t in range(50):
+        #print(exactlyOne([PropSymbolExpr(pacman_str, i[0], i[1], t) for i in non_wall_coords]))
+        KB.append(exactlyOne([PropSymbolExpr(pacman_str, i[0], i[1], t) for i in non_wall_coords]))
+        model = findModel(conjoin(KB) & PropSymbolExpr(pacman_str, xg, yg, t))
+        #print(model)
+        if model is not False:
+            #print(extractActionSequence(model, actions))
+            return extractActionSequence(model, actions)
+        KB.append(exactlyOne([PropSymbolExpr(action, t) for action in actions]))
+        for i in non_wall_coords:
+            KB.append(pacmanSuccessorStateAxioms(i[0], i[1], t + 1, walls))
+    print('out of loop')
+    return None
+
+
     "*** END YOUR CODE HERE ***"
 
 
