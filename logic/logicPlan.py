@@ -684,20 +684,20 @@ def mapping(problem, agent):
         for i in non_outer_wall_coords:
             x, y = i
             # find a model such that (x,y) is wall
-            model1 = findModel(conjoin(KB) & PropSymbolExpr(wall_str, x, y, t))
+            model1 = findModel(conjoin(KB) & PropSymbolExpr(wall_str, x, y))
             # find a model such that (x,y) is not wall
-            model2 = findModel(conjoin(KB) & ~PropSymbolExpr(wall_str, x, y, t))
+            model2 = findModel(conjoin(KB) & ~PropSymbolExpr(wall_str, x, y))
 
-            if model1:
-                known_map[x][y] = -1
-                KB.append()
-
+            if not model2:
+                KB.append(PropSymbolExpr(wall_str, x, y))
+                known_map[x][y] = 1
+            elif not model1:
+                KB.append(~PropSymbolExpr(wall_str, x, y))
+                known_map[x][y] = 0
         map_copy = copy.deepcopy(known_map)
-
         known_map_by_timestep.append(map_copy)
-
+        
         agent.moveToNextState(agent.actions[t])
-        print(known_map)
         KB.append(allLegalSuccessorAxioms(t + 1, known_map, non_outer_wall_coords))
 
     "*** END YOUR CODE HERE ***"
