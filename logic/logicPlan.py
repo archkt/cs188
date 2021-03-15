@@ -696,7 +696,7 @@ def mapping(problem, agent):
                 known_map[x][y] = 0
         map_copy = copy.deepcopy(known_map)
         known_map_by_timestep.append(map_copy)
-        
+
         agent.moveToNextState(agent.actions[t])
         KB.append(allLegalSuccessorAxioms(t + 1, known_map, non_outer_wall_coords))
 
@@ -731,7 +731,49 @@ def slam(problem, agent):
     KB.append(conjoin(outer_wall_sent))
 
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+    KB.append(PropSymbolExpr(pacman_str, pac_x_0, pac_y_0, 0))
+    for t in range(agent.num_timesteps):
+        # Add pacphysics, action, sensor, and percept information to KB
+        KB.append(pacphysics_axioms(t, all_coords, non_outer_wall_coords))
+        KB.append(PropSymbolExpr(agent.actions[t], t))
+        KB.append(SLAMSensorAxioms(t, non_outer_wall_coords))
+        KB.append(num_adj_walls_percept_rules(t, agent.getPercepts()))
+
+        # Find provable wall locations with updated KB
+        for i in non_outer_wall_coords:
+            x, y = i
+            # find a model such that (x,y) is wall
+            model1 = findModel(conjoin(KB) & PropSymbolExpr(wall_str, x, y))
+            # find a model such that (x,y) is not wall
+            model2 = findModel(conjoin(KB) & ~PropSymbolExpr(wall_str, x, y))
+
+            if not model2:
+                KB.append(PropSymbolExpr(wall_str, x, y))
+                known_map[x][y] = 1
+            elif not model1:
+                KB.append(~PropSymbolExpr(wall_str, x, y))
+                known_map[x][y] = 0
+        map_copy = copy.deepcopy(known_map)
+        known_map_by_timestep.append(map_copy)
+
+        # Find possible pacman locations with updated KB
+        possible_locations_t = []
+        for i in non_outer_wall_coords:
+            x, y = i
+            model1 = findModel(conjoin(KB) & PropSymbolExpr(pacman_str, x, y, t))
+            model2 = findModel(conjoin(KB) & ~PropSymbolExpr(pacman_str, x, y, t))
+            if model1:
+                possible_locations_t.append(i)
+            elif not model2:
+                KB.append(~PropSymbolExpr(pacman_str, x, y, t))
+            elif not model1:
+                KB.append(~PropSymbolExpr(pacman_str, x, y, t))
+        possible_locs_by_timestep.append(possible_locations_t)
+
+        agent.moveToNextState(agent.actions[t])
+        KB.append(SLAMSuccessorAxioms(t, known_map, non_outer_wall_coords))
+
+
     "*** END YOUR CODE HERE ***"
     return known_map_by_timestep, possible_locs_by_timestep
 
