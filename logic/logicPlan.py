@@ -671,7 +671,35 @@ def mapping(problem, agent):
     KB.append(conjoin(outer_wall_sent))
 
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+    KB.append(PropSymbolExpr(pacman_str, pac_x_0, pac_y_0, 0))
+
+    for t in range(agent.num_timesteps):
+        # Add pacphysics, action, sensor, and percept information to KB
+        KB.append(pacphysics_axioms(t, all_coords, non_outer_wall_coords))
+        KB.append(PropSymbolExpr(agent.actions[t], t))
+        KB.append(sensorAxioms(t, non_outer_wall_coords))
+        KB.append(four_bit_percept_rules(t, agent.getPercepts()))
+
+        # Find provable wall locations with updated KB
+        for i in non_outer_wall_coords:
+            x, y = i
+            # find a model such that (x,y) is wall
+            model1 = findModel(conjoin(KB) & PropSymbolExpr(wall_str, x, y, t))
+            # find a model such that (x,y) is not wall
+            model2 = findModel(conjoin(KB) & ~PropSymbolExpr(wall_str, x, y, t))
+
+            if model1:
+                known_map[x][y] = -1
+                KB.append()
+
+        map_copy = copy.deepcopy(known_map)
+
+        known_map_by_timestep.append(map_copy)
+
+        agent.moveToNextState(agent.actions[t])
+        print(known_map)
+        KB.append(allLegalSuccessorAxioms(t + 1, known_map, non_outer_wall_coords))
+
     "*** END YOUR CODE HERE ***"
     return known_map_by_timestep
 
