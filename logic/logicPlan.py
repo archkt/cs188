@@ -409,6 +409,7 @@ def positionLogicPlan(problem):
 
     "*** BEGIN YOUR CODE HERE ***"
     KB.append(PropSymbolExpr(pacman_str, x0, y0, 0))
+
     for t in range(50):
         #print(exactlyOne([PropSymbolExpr(pacman_str, i[0], i[1], t) for i in non_wall_coords]))
         KB.append(exactlyOne([PropSymbolExpr(pacman_str, i[0], i[1], t) for i in non_wall_coords]))
@@ -417,13 +418,12 @@ def positionLogicPlan(problem):
         if model is not False:
             #print(extractActionSequence(model, actions))
             return extractActionSequence(model, actions)
+
         KB.append(exactlyOne([PropSymbolExpr(action, t) for action in actions]))
         for i in non_wall_coords:
             KB.append(pacmanSuccessorStateAxioms(i[0], i[1], t + 1, walls))
-    print('out of loop')
+
     return None
-
-
     "*** END YOUR CODE HERE ***"
 
 
@@ -450,7 +450,30 @@ def foodLogicPlan(problem):
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+    KB.append(PropSymbolExpr(pacman_str, x0, y0, 0))
+
+    for i in food:
+        expression = PropSymbolExpr(food_str, i[0], i[1], 0)
+        KB.append(expression)
+
+    for t in range(50):
+        goal_check = conjoin([~PropSymbolExpr(food_str, f[0], f[1], t) for f in food])
+        KB.append(exactlyOne([PropSymbolExpr(pacman_str, i[0], i[1], t) for i in non_wall_coords]))
+        model = findModel(conjoin(KB) & goal_check)
+
+        if model is not False:
+            return extractActionSequence(model, actions)
+
+        KB.append(exactlyOne([PropSymbolExpr(action, t) for action in actions]))
+        for i in non_wall_coords:
+            KB.append(pacmanSuccessorStateAxioms(i[0], i[1], t + 1, walls))
+
+        for f in food:
+            KB.append(PropSymbolExpr(food_str, f[0], f[1], t + 1) % (~PropSymbolExpr(pacman_str, f[0], f[1], t) &
+                                                                      PropSymbolExpr(food_str, f[0], f[1], t)))
+
+
+    return None
     "*** END YOUR CODE HERE ***"
 
 
@@ -585,7 +608,27 @@ def localization(problem, agent):
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    raise NotImplementedError
+    for i in all_coords:
+        if i in walls_list:
+            KB.append(PropSymbolExpr(wall_str, i[0], i[1]))
+        else:
+            KB.append(~PropSymbolExpr(wall_str, i[0], i[1]))
+
+    for t in range(agent.num_timesteps):
+        # Add pacphysics, action, sensor, and percept information to KB
+        KB.append(pacphysics_axioms(t, all_coords, non_outer_wall_coords))
+        KB.append(PropSymbolExpr(agent.actions[t], t))
+        KB.append(sensorAxioms(t, non_outer_wall_coords))
+        KB.append(four_bit_percept_rules(t, agent.getPercepts()))
+
+        #Find possible pacman locations with updated KB
+        possible_locations_t = []
+        for i in non_outer_wall_coords:
+            model2 = findModel(conjoin(KB) & PropSymbolExpr(pacman_str, x1, y1, 1))
+
+
+    #print(KB)
+
     "*** END YOUR CODE HERE ***"
     return possible_locs_by_timestep
 
