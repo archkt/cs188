@@ -624,8 +624,20 @@ def localization(problem, agent):
         #Find possible pacman locations with updated KB
         possible_locations_t = []
         for i in non_outer_wall_coords:
-            model2 = findModel(conjoin(KB) & PropSymbolExpr(pacman_str, x1, y1, 1))
+            model1 = findModel(conjoin(KB) & PropSymbolExpr(pacman_str, i[0], i[1], t))
+            model2 = findModel(conjoin(KB) & ~PropSymbolExpr(pacman_str, i[0], i[1], t))
+            if model1:
+                possible_locations_t.append(i)
+            elif not model2:
+                KB.append(~PropSymbolExpr(pacman_str, i[0], i[1], t))
+            elif not model1:
+                KB.append(~PropSymbolExpr(pacman_str, i[0], i[1], t))
+        possible_locs_by_timestep.append(possible_locations_t)
 
+        agent.moveToNextState(agent.actions[t])
+        KB.append(allLegalSuccessorAxioms(t + 1, walls_grid, non_outer_wall_coords))
+
+    return possible_locs_by_timestep
 
     #print(KB)
 
