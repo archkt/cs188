@@ -747,12 +747,14 @@ def slam(problem, agent):
             # find a model such that (x,y) is not wall
             model2 = findModel(conjoin(KB) & ~PropSymbolExpr(wall_str, x, y))
 
-            if not model2:
-                KB.append(PropSymbolExpr(wall_str, x, y))
-                known_map[x][y] = 1
-            elif not model1:
-                KB.append(~PropSymbolExpr(wall_str, x, y))
-                known_map[x][y] = 0
+            if known_map[x][y] == -1:
+                if not model2:
+                    KB.append(PropSymbolExpr(wall_str, x, y))
+                    known_map[x][y] = 1
+                elif not model1:
+                    KB.append(~PropSymbolExpr(wall_str, x, y))
+                    known_map[x][y] = 0
+
         map_copy = copy.deepcopy(known_map)
         known_map_by_timestep.append(map_copy)
 
@@ -764,14 +766,23 @@ def slam(problem, agent):
             model2 = findModel(conjoin(KB) & ~PropSymbolExpr(pacman_str, x, y, t))
             if model1:
                 possible_locations_t.append(i)
-            elif not model2:
+            else:
                 KB.append(~PropSymbolExpr(pacman_str, x, y, t))
-            elif not model1:
-                KB.append(~PropSymbolExpr(pacman_str, x, y, t))
+            if not model2:
+                KB.append(PropSymbolExpr(pacman_str, x, y, t))
         possible_locs_by_timestep.append(possible_locations_t)
 
         agent.moveToNextState(agent.actions[t])
-        KB.append(SLAMSuccessorAxioms(t, known_map, non_outer_wall_coords))
+        temp = []
+        for i in range(len(known_map)):
+            temp.append([])
+            for j in range(len(known_map[i])):
+                if known_map[i][j] == 1:
+                    temp[i].append(1)
+                else:
+                    temp[i].append(0)
+        print(temp)
+        KB.append(SLAMSuccessorAxioms(t + 1, temp, non_outer_wall_coords))
 
 
     "*** END YOUR CODE HERE ***"
