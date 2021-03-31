@@ -102,7 +102,37 @@ def joinFactors(factors):
 
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    new_conditioned = set()
+    new_unconditioned = set()
+    new_variableDomainsDict = []
+
+    for factor in factors:
+
+        for uncond in factor.unconditionedVariables():
+            new_unconditioned.add(uncond)
+
+        for cond in factor.conditionedVariables():
+            new_conditioned.add(cond)
+
+        new_variableDomainsDict.append(factor.variableDomainsDict())
+
+    for uncond in new_unconditioned:
+        if uncond in new_conditioned:
+            new_conditioned.remove(uncond)
+
+    new_factor = Factor(new_unconditioned, new_conditioned, new_variableDomainsDict[0])
+
+    for assignment in new_factor.getAllPossibleAssignmentDicts():
+        prob = 1
+        print(assignment)
+
+        for factor in factors:
+            print(factor)
+            prob *= factor.getProbability(assignment)
+
+        new_factor.setProbability(assignment, prob)
+
+    return new_factor
     "*** END YOUR CODE HERE ***"
 
 
@@ -152,7 +182,31 @@ def eliminateWithCallTracking(callTrackingList=None):
                     "unconditionedVariables: " + str(factor.unconditionedVariables()))
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        import copy
+
+        new_unconditioned = factor.unconditionedVariables()
+        conditioned = factor.conditionedVariables()
+        variable_domain = factor.variableDomainsDict()
+
+        new_unconditioned.remove(eliminationVariable)
+
+        new_variable_domain = copy.deepcopy(variable_domain)
+        elim_var_domain = new_variable_domain.pop(eliminationVariable)
+
+        new_factor = Factor(new_unconditioned, conditioned, variable_domain)
+
+        for assignment in new_factor.getAllPossibleAssignmentDicts():
+            prob = 0
+
+            for i in elim_var_domain:
+                modified_assignment = copy.deepcopy(assignment)
+                modified_assignment[eliminationVariable] = i
+                prob += factor.getProbability(modified_assignment)
+
+            new_factor.setProbability(assignment, prob)
+
+
+        return new_factor
         "*** END YOUR CODE HERE ***"
 
     return eliminate
