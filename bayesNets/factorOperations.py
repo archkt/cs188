@@ -124,10 +124,8 @@ def joinFactors(factors):
 
     for assignment in new_factor.getAllPossibleAssignmentDicts():
         prob = 1
-        print(assignment)
 
         for factor in factors:
-            print(factor)
             prob *= factor.getProbability(assignment)
 
         new_factor.setProbability(assignment, prob)
