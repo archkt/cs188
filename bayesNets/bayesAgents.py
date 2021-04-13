@@ -394,7 +394,24 @@ class VPIAgent(BayesAgent):
         rightExpectedValue = 0
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        import copy
+
+        bayesNet = self.bayesNet
+        factor = inference.inferenceByVariableElimination(bayesNet, [FOOD_HOUSE_VAR, GHOST_HOUSE_VAR], evidence, eliminationOrder)
+
+        fLeftAssignment = copy.deepcopy(evidence)
+        fRightAssignment = copy.deepcopy(evidence)
+
+        fLeftAssignment[FOOD_HOUSE_VAR] = TOP_LEFT_VAL
+        fLeftAssignment[GHOST_HOUSE_VAR] = TOP_RIGHT_VAL
+        fRightAssignment[FOOD_HOUSE_VAR] = TOP_RIGHT_VAL
+        fRightAssignment[GHOST_HOUSE_VAR] = TOP_LEFT_VAL
+
+        fLeftProb = factor.getProbability(fLeftAssignment)
+        fRightProb = factor.getProbability(fRightAssignment)
+
+        leftExpectedValue = fLeftProb * WON_GAME_REWARD + fRightProb * GHOST_COLLISION_REWARD
+        rightExpectedValue = fRightProb * WON_GAME_REWARD + fLeftProb * GHOST_COLLISION_REWARD
         "*** END YOUR CODE HERE ***"
 
         return leftExpectedValue, rightExpectedValue
@@ -461,7 +478,12 @@ class VPIAgent(BayesAgent):
         expectedValue = 0
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        for prob, outcomes in self.getExplorationProbsAndOutcomes(evidence):
+            expectedValue += prob * max(self.computeEnterValues(outcomes, enterEliminationOrder))
+
+        return expectedValue
+
         "*** END YOUR CODE HERE ***"
 
         return expectedValue
