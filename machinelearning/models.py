@@ -28,6 +28,10 @@ class PerceptronModel(object):
         """
         "*** YOUR CODE HERE ***"
 
+        weights = self.get_weights()
+        res = nn.DotProduct(x, weights)
+        return res
+
     def get_prediction(self, x):
         """
         Calculates the predicted class for a single data point `x`.
@@ -36,11 +40,26 @@ class PerceptronModel(object):
         """
         "*** YOUR CODE HERE ***"
 
+        node = nn.as_scalar(self.run(x))
+        return 1 if node >= 0 else -1
+
     def train(self, dataset):
         """
         Train the perceptron until convergence.
         """
         "*** YOUR CODE HERE ***"
+
+        while True:
+            update = True
+            for x, y in dataset.iterate_once(1):
+                scalar_y = nn.as_scalar(y)
+                if self.get_prediction(x) != scalar_y:
+                    nn.Parameter.update(self.get_weights(), x, scalar_y)
+                    update = False
+            if update:
+                break
+
+
 
 class RegressionModel(object):
     """
