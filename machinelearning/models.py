@@ -70,6 +70,12 @@ class RegressionModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        self.alpha = -.002
+        self.weight_1 = nn.Parameter(1, 90)
+        self.weight_2 = nn.Parameter(90, 1)
+        self.bias_1 = nn.Parameter(1, 90)
+        self.bias_2 = nn.Parameter(1, 1)
+        self.parameters = [self.weight_1, self.weight_2, self.bias_1, self.bias_2]
 
     def run(self, x):
         """
@@ -82,6 +88,12 @@ class RegressionModel(object):
         """
         "*** YOUR CODE HERE ***"
 
+        hidden_first = nn.ReLU(nn.AddBias(nn.Linear(x, self.weight_1), self.bias_1))
+        hidden_second = nn.AddBias(nn.Linear(hidden_first, self.weight_2), self.bias_2)
+
+        return hidden_second
+
+
     def get_loss(self, x, y):
         """
         Computes the loss for a batch of examples.
@@ -93,12 +105,24 @@ class RegressionModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        y_predicted = self.run(x)
+        return nn.SquareLoss(y_predicted, y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+
+        loss = 1e9
+        while loss > 0.02:
+            for x, y in dataset.iterate_once(1):
+                loss = nn.as_scalar(self.get_loss(x, y))
+                gradients = nn.gradients(self.get_loss(x, y), self.parameters)
+
+                for i in range(len(gradients)):
+                    self.parameters[i].update(gradients[i], self.alpha)
+
 
 class DigitClassificationModel(object):
     """
